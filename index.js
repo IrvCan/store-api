@@ -1,4 +1,6 @@
 const express = require('express');
+const { faker } = require('@faker-js/faker');
+
 const app = express();
 const port = 3000;
 
@@ -7,18 +9,19 @@ app.get('/', (req, res) => {
 })
 
 app.get('/products', (req, res) => {
-  res.json([
-    {
-      id: 1,
-      name:'Producto 1',
-      price: 150
-    },
-    {
-      id: 2,
-      name:'Producto 2',
-      price: 100
-    }
-  ])
+  const products = [];
+  const { size } = req.query;
+  const limit = size || 10;
+  for (let index = 0; index < limit; index++) {
+    products.push({
+      name: faker.commerce.productName(),
+      description: faker.commerce.productDescription(),
+      price: parseFloat(faker.commerce.price(), 10),
+      image: faker.image.url()
+    })
+  }
+
+  res.json([products]);
 })
 
 app.get('/products/:id', (req, res) => {
@@ -36,6 +39,19 @@ app.get('category/:categoryId/products/:productid', (req, res) => {
     categoryId,
     productId
   });
+});
+
+app.get('/users', (req, res) => {
+  const { limit, offset } = req.query;
+  if(limit && offset) {
+    res.json({
+      limit: limit,
+      offset: offset
+    });
+  } else {
+    res.send('ERROR: Invalid params');
+  }
+
 });
 
 app.listen(port, () =>{
